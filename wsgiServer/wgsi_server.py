@@ -1,6 +1,6 @@
 import selectors
 import socket
-from wgsiServer.http_parsed import BaseRequest
+from wsgiServer.http_parsed import BaseRequest
 import time
 
 
@@ -116,7 +116,7 @@ class WSGIServer(object):
         # r += "Server: sweetpig-wsgi\r\n"
         r += '\r\n'
         # r += "Date: %s\r\n" % format_date_time(time.time())
-        r += "Server: sweetpig-wsgi\r\n"
+        # r += "Server: sweetpig-wsgi\r\n"
         self.response = r.encode()
 
 

@@ -1,5 +1,6 @@
 import time
-
+import re
+from functools import wraps
 
 def default(environ, start_response):
     print('#' * 100)
@@ -14,23 +15,43 @@ def default(environ, start_response):
 class SweetPig:
     def __init__(self, import_name):
         self.import_name = import_name
-
+        self.uri_map = {}
+        self.uri_regex_map = {}
         self.uri_map = {
-            'default': default
+            '404': default
         }
 
     def __call__(self, *args, **kwargs):
         environ, start_response = args
         url = environ['PATH_INFO']
-        app = self.uri_map.get(url, self.uri_map['default'])
+        if url in self.uri_map:
+            app = self.uri_map.get(url)
+            dic = {}
+            return app(environ, start_response, **dic)
+        for k, v in self.uri_map.items():
+            if k in self.uri_regex_map:
+                m = self.uri_regex_map[k].match(url)
+                if m:
+                    app = self.uri_map.get(k)
+                    return app(environ, start_response, **m.groupdict())
+        app = self.uri_map.get('404')
         return app(environ, start_response)
 
     def route(self, path):
         print('path', path)
 
+        pattern = path
+        pattern = pattern.replace('<', '(?P<')
+        pattern = pattern.replace('>', '>\w+)')
+
         def wrapper(func):
-            def _wrap(environ, start_response, *args, **kwargs):
-                res = func(*args, **kwargs)
+            if pattern.find('<') >= 0 and pattern.find('>') >= 0:
+                self.uri_regex_map[path] = re.compile(pattern)
+
+            @wraps(func)
+            def _wrap(environ, start_response, *args, **param):
+                res = func(*args, **param)
+
                 start_response('200 OK', [('Content-Type', 'text/html')])
                 return [res.encode('utf-8')]
 

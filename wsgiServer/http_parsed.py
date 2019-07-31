@@ -1,4 +1,4 @@
-from wgsiServer.log.logging import logger
+from wsgiServer.log.logging import logger
 
 
 class BaseRequest(object):

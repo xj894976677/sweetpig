@@ -1,4 +1,4 @@
-from wgsiServer.wgsi_server import WSGIServer
+from wsgiServer.wgsi_server import WSGIServer
 from app import app
 import atexit
 if __name__ == '__main__':
